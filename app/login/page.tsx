@@ -80,12 +80,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs mt-6" style={{ color: "rgba(255,255,255,0.6)" }}>
+          {/* <p className="text-center text-xs mt-6" style={{ color: "rgba(255,255,255,0.6)" }}>
             First time?{" "}
             <a href="/api/auth/seed" target="_blank" className="font-medium transition-colors" style={{ color: "#a78bfa" }} onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#c4b5fd"; }} onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#a78bfa"; }}>
               Seed demo data →
             </a>
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
