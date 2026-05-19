@@ -352,102 +352,133 @@ export default function UsersPage() {
         {/* Add/Edit Modal */}
        {showModal && (
   <div
-    className="fixed inset-0 flex items-center justify-center z-50 p-4"
-    style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 9999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+      background: "rgba(0,0,0,0.75)",
+      backdropFilter: "blur(8px)",
+    }}
   >
     <div
-      className="w-full max-w-lg rounded-2xl flex flex-col"
       style={{
-        background: "rgba(30,27,75,0.95)",
+        width: "100%",
+        maxWidth: "520px",
+        maxHeight: "88vh",
+        borderRadius: "20px",
+        background: "rgba(30,27,75,0.97)",
         border: "1px solid rgba(255,255,255,0.15)",
-        maxHeight: "90vh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
       }}
     >
-      {/* Modal Header — fixed at top */}
-      <div
-        className="flex items-center justify-between px-6 py-4 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
-      >
+      {/* ── Header ── */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "20px 24px",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        flexShrink: 0,
+      }}>
         <div>
-          <h3 className="text-base font-bold text-white">
+          <h3 style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", margin: 0 }}>
             {editing ? "Edit User" : "Create User Account"}
           </h3>
-          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
-            {editing
-              ? "Update user credentials and details"
-              : "Set credentials, role, department and position"}
+          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.75rem", marginTop: "2px" }}>
+            {editing ? "Update user details" : "Fill in credentials, role, department and position"}
           </p>
         </div>
         <button
           onClick={() => setShowModal(false)}
-          className="p-1.5 rounded-lg transition-all"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "rgba(255,255,255,0.45)",
+            cursor: "pointer",
+            padding: "6px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.color = "#fff";
             (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)";
+            (e.currentTarget as HTMLElement).style.color = "#fff";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)";
             (e.currentTarget as HTMLElement).style.background = "transparent";
+            (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)";
           }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      {/* Scrollable Form Body */}
-      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+      {/* ── Scrollable Body ── */}
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}
+      >
+        <div style={{
+          overflowY: "auto",
+          flex: 1,
+          padding: "24px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}>
 
-          {/* Name + Email in a row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Row 1: Name + Email */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
                 Full Name
               </label>
               <input
                 type="text" required value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className={inp} placeholder="John Doe"
+                placeholder="John Doe"
+                className={inp}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
                 Email Address
               </label>
               <input
                 type="email" required value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className={inp} placeholder="john@company.com"
+                placeholder="john@company.com"
+                className={inp}
               />
             </div>
           </div>
 
-          {/* Password + Role in a row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Row 2: Password + Role */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
                 Password{" "}
-                {editing && (
-                  <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>
-                    (optional)
-                  </span>
-                )}
+                {editing && <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>(optional)</span>}
               </label>
               <input
                 type="password" required={!editing} value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className={inp} placeholder="Min. 6 chars" minLength={6}
+                placeholder="Min. 6 chars" minLength={6}
+                className={inp}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
                 Role
               </label>
               <select
@@ -459,7 +490,7 @@ export default function UsersPage() {
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
               </select>
-              <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", marginTop: "4px" }}>
                 {form.role === "admin"    && "Full system access"}
                 {form.role === "manager"  && "Manage teams & salaries"}
                 {form.role === "employee" && "View own profile only"}
@@ -467,15 +498,11 @@ export default function UsersPage() {
             </div>
           </div>
 
-          {/* Department + Position in a row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Row 3: Department + Position */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
-                Department
-                <span className="ml-1 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  (optional)
-                </span>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
+                Department <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>(optional)</span>
               </label>
               <select
                 value={form.department}
@@ -489,12 +516,8 @@ export default function UsersPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.8)" }}>
-                Position
-                <span className="ml-1 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  (optional)
-                </span>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.75)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
+                Position <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>(optional)</span>
               </label>
               <select
                 value={form.position}
@@ -509,57 +532,92 @@ export default function UsersPage() {
             </div>
           </div>
 
-          {/* Custom position input if none selected */}
+          {/* Custom position */}
           {form.position === "" && (
             <div>
-              <label className="block text-xs font-semibold mb-1.5"
-                style={{ color: "rgba(255,255,255,0.6)" }}>
-                Custom Position <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>(type if not in list)</span>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "6px" }}>
+                Custom Position <span style={{ fontWeight: 400 }}>(type if not in list above)</span>
               </label>
               <input
                 type="text" value={form.position}
                 onChange={(e) => setForm({ ...form, position: e.target.value })}
-                className={inp} placeholder="e.g. Lead Architect"
+                placeholder="e.g. Lead Architect"
+                className={inp}
               />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="px-4 py-3 rounded-xl text-sm"
-              style={{
-                background: "rgba(239,68,68,0.15)",
-                border: "1px solid rgba(239,68,68,0.3)",
-                color: "#fca5a5",
-              }}>
+            <div style={{
+              padding: "12px 16px",
+              borderRadius: "12px",
+              background: "rgba(239,68,68,0.15)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              color: "#fca5a5",
+              fontSize: "0.875rem",
+            }}>
               {error}
             </div>
           )}
         </div>
 
-        {/* Footer Buttons — fixed at bottom */}
-        <div
-          className="px-6 py-4 flex gap-3 shrink-0"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-        >
+        {/* ── Footer Buttons — always visible ── */}
+        <div style={{
+          padding: "16px 24px",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          display: "flex",
+          gap: "12px",
+          flexShrink: 0,
+          background: "rgba(30,27,75,0.97)",
+        }}>
           <button
-            type="button" onClick={() => setShowModal(false)}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+            type="button"
+            onClick={() => setShowModal(false)}
             style={{
+              flex: 1,
+              padding: "10px",
+              borderRadius: "12px",
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.2)",
               color: "rgba(255,255,255,0.85)",
+              fontWeight: 600,
+              fontSize: "0.875rem",
+              cursor: "pointer",
             }}
           >
             Cancel
           </button>
           <button
-            type="submit" disabled={loading}
-            className="btn-glass flex-1 py-2.5 text-sm font-semibold disabled:opacity-60 flex items-center justify-center gap-2"
+            type="submit"
+            disabled={loading}
+            style={{
+              flex: 1,
+              padding: "10px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              border: "none",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: "0.875rem",
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.6 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
           >
             {loading ? (
               <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span style={{
+                  width: "14px", height: "14px",
+                  border: "2px solid rgba(255,255,255,0.4)",
+                  borderTopColor: "#fff",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                  animation: "spin 0.7s linear infinite",
+                }} />
                 Saving...
               </>
             ) : editing ? "Save Changes" : "Create Account"}
