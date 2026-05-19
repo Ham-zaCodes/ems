@@ -5,7 +5,11 @@ const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ["admin", "manager"], default: "admin" },
+  role: {
+    type: String,
+    enum: ["admin", "manager", "employee"],  // ✅ added employee
+    default: "employee",
+  },
 }, { timestamps: true });
 
 UserSchema.pre("save", async function () {
