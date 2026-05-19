@@ -626,4 +626,6 @@ export default function UsersPage() {
       </form>
     </div>
   </div>
-)}
+ </>         {/* closes the fragment */}
+  );            {/* closes return */}
+} 
