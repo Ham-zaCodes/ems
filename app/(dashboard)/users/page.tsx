@@ -1,12 +1,195 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface User { _id: string; name: string; email: string; role: string; createdAt: string }
-const EMPTY = { name: "", email: "", password: "", role: "manager" };
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+const EMPTY = { name: "", email: "", password: "", role: "employee" };
+
+// Role style config
+const ROLE_STYLE: Record<string, { bg: string; color: string; dot: string; label: string }> = {
+  admin: {
+    bg: "rgba(99,102,241,0.2)",
+    color: "#a78bfa",
+    dot: "#8B5CF6",
+    label: "Admin",
+  },
+  manager: {
+    bg: "rgba(20,184,166,0.2)",
+    color: "#5eead4",
+    dot: "#14b8a6",
+    label: "Manager",
+  },
+  employee: {
+    bg: "rgba(251,191,36,0.15)",
+    color: "#fcd34d",
+    dot: "#f59e0b",
+    label: "Employee",
+  },
+};
 
 function Avatar({ name }: { name: string }) {
-  const initials = name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
-  return <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{initials}</div>;
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+      {initials}
+    </div>
+  );
+}
+
+// ✅ Credentials Card shown after creating a user
+function CredentialsCard({
+  name,
+  email,
+  password,
+  role,
+  onClose,
+}: {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const credText = `Name: ${name}\nEmail: ${email}\nPassword: ${password}\nRole: ${role}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(credText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl p-6 space-y-5"
+        style={{
+          background: "rgba(30,27,75,0.95)",
+          border: "1px solid rgba(255,255,255,0.15)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(99,102,241,0.2)" }}
+          >
+            <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">Account Created!</h3>
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+              Share these credentials with the user
+            </p>
+          </div>
+        </div>
+
+        {/* Credentials Box */}
+        <div
+          className="rounded-xl p-4 space-y-3"
+          style={{
+            background: "rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {[
+            { label: "Full Name", value: name },
+            { label: "Email", value: email },
+            { label: "Password", value: password },
+            { label: "Role", value: role.charAt(0).toUpperCase() + role.slice(1) },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex items-center justify-between">
+              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>
+                {label}
+              </span>
+              <span
+                className="text-sm font-bold font-mono"
+                style={{
+                  color: label === "Password" ? "#fcd34d" : "rgba(255,255,255,0.9)",
+                }}
+              >
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Warning */}
+        <div
+          className="rounded-xl px-4 py-3 flex items-start gap-2 text-xs"
+          style={{
+            background: "rgba(251,191,36,0.1)",
+            border: "1px solid rgba(251,191,36,0.25)",
+            color: "#fcd34d",
+          }}
+        >
+          <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>
+            This password will not be shown again. Make sure to copy and share it with the user now.
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleCopy}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+            style={{
+              background: copied ? "rgba(16,185,129,0.2)" : "rgba(99,102,241,0.2)",
+              border: copied ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(99,102,241,0.4)",
+              color: copied ? "#6ee7b7" : "#a78bfa",
+            }}
+          >
+            {copied ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy Credentials
+              </>
+            )}
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function UsersPage() {
@@ -18,23 +201,72 @@ export default function UsersPage() {
   const [error, setError] = useState("");
   const [show, setShow] = useState(false);
 
-  async function fetchUsers() { const res = await fetch("/api/users"); setUsers(await res.json()); }
-  useEffect(() => { fetchUsers(); setTimeout(() => setShow(true), 40); }, []);
+  // ✅ Credentials card state
+  const [createdCreds, setCreatedCreds] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+  } | null>(null);
 
-  function openAdd() { setEditing(null); setForm(EMPTY); setError(""); setShowModal(true); }
-  function openEdit(u: User) { setEditing(u); setForm({ name: u.name, email: u.email, password: "", role: u.role }); setError(""); setShowModal(true); }
+  async function fetchUsers() {
+    const res = await fetch("/api/users");
+    setUsers(await res.json());
+  }
+
+  useEffect(() => {
+    fetchUsers();
+    setTimeout(() => setShow(true), 40);
+  }, []);
+
+  function openAdd() {
+    setEditing(null);
+    setForm(EMPTY);
+    setError("");
+    setShowModal(true);
+  }
+
+  function openEdit(u: User) {
+    setEditing(u);
+    setForm({ name: u.name, email: u.email, password: "", role: u.role });
+    setError("");
+    setShowModal(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); setLoading(true); setError("");
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
     const body: any = { ...form };
     if (editing && !body.password) delete body.password;
+
     const url = editing ? `/api/users/${editing._id}` : "/api/users";
-    const res = await fetch(url, { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch(url, {
+      method: editing ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
     const data = await res.json();
     setLoading(false);
+
     if (!res.ok) return setError(data.error);
-    setShowModal(false); fetchUsers();
+
+    setShowModal(false);
+    fetchUsers();
+
+    // ✅ Show credentials card only when creating a new user
+    if (!editing) {
+      setCreatedCreds({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      });
+    }
   }
+
   async function handleDelete(id: string) {
     if (!confirm("Delete this user?")) return;
     const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
@@ -46,87 +278,315 @@ export default function UsersPage() {
   const inp = "glass-input w-full px-3 py-2.5 text-sm";
 
   return (
-    <div style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(16px)", transition: "opacity 400ms ease, transform 400ms ease" }}>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold gradient-text">User Accounts</h2>
-          <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.7)" }}>{users.length} accounts</p>
-        </div>
-        <button onClick={openAdd} className="btn-glass flex items-center gap-2 px-4 py-2.5 text-sm">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-          Add User
-        </button>
-      </div>
-
-      <div className="glass-card overflow-hidden">
-        <table className="glass-table">
-          <thead><tr>{["User","Role","Created","Actions"].map(h => <th key={h}>{h}</th>)}</tr></thead>
-          <tbody>
-            {users.length === 0 ? (
-              <tr><td colSpan={4} className="text-center py-16" style={{ color: "rgba(255,255,255,0.55)" }}>No users found</td></tr>
-            ) : users.map((u, i) => (
-              <tr key={u._id} style={{ opacity: show ? 1 : 0, transition: `opacity 300ms ease ${i * 50}ms` }}>
-                <td><div className="flex items-center gap-3"><Avatar name={u.name} /><div><p className="font-semibold text-white">{u.name}</p><p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>{u.email}</p></div></div></td>
-                <td>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                    style={u.role === "admin"
-                      ? { background: "rgba(99,102,241,0.2)", color: "#a78bfa", border: "1px solid rgba(99,102,241,0.35)" }
-                      : { background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: u.role === "admin" ? "#8B5CF6" : "rgba(255,255,255,0.4)" }} />
-                    {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                  </span>
-                </td>
-                <td style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.75rem" }}>{new Date(u.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
-                <td>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg transition-all" style={{ color: "rgba(255,255,255,0.65)" }} onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#818cf8"; (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.2)"; }} onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                    </button>
-                    <button onClick={() => handleDelete(u._id)} className="p-1.5 rounded-lg transition-all" style={{ color: "rgba(255,255,255,0.65)" }} onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#f87171"; (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.2)"; }} onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-overlay-in" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
-          <div className="glass-card w-full max-w-md animate-modal-in" style={{ background: "rgba(30,27,75,0.85)" }}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              <h3 className="text-base font-bold text-white">{editing ? "Edit User" : "Add User"}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg" style={{ color: "rgba(255,255,255,0.4)" }} onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }} onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {[["Full Name","name","text","John Doe"],["Email","email","email","john@co.com"],["Password","password","password","••••••••"]].map(([label,key,type,ph]) => (
-                <div key={key}>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    {label} {key === "password" && editing && <span style={{ color: "rgba(255,255,255,0.55)", fontWeight: 400 }}>(leave blank to keep)</span>}
-                  </label>
-                  <input type={type} required={!(key === "password" && editing)} value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} className={inp} placeholder={ph} />
-                </div>
-              ))}
-              <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>Role</label>
-                <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className={inp}>
-                  <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                </select>
-              </div>
-              {error && <div className="px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}>{error}</div>}
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.9)" }}>Cancel</button>
-                <button type="submit" disabled={loading} className="btn-glass flex-1 py-2.5 text-sm disabled:opacity-60">{loading ? "Saving..." : editing ? "Save Changes" : "Create User"}</button>
-              </div>
-            </form>
-          </div>
-        </div>
+    <>
+      {/* ✅ Credentials Card */}
+      {createdCreds && (
+        <CredentialsCard
+          name={createdCreds.name}
+          email={createdCreds.email}
+          password={createdCreds.password}
+          role={createdCreds.role}
+          onClose={() => setCreatedCreds(null)}
+        />
       )}
-    </div>
+
+      <div
+        style={{
+          opacity: show ? 1 : 0,
+          transform: show ? "translateY(0)" : "translateY(16px)",
+          transition: "opacity 400ms ease, transform 400ms ease",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold gradient-text">User Accounts</h2>
+            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.7)" }}>
+              {users.length} accounts
+            </p>
+          </div>
+          <button
+            onClick={openAdd}
+            className="btn-glass flex items-center gap-2 px-4 py-2.5 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add User
+          </button>
+        </div>
+
+        {/* Table */}
+        <div className="glass-card overflow-hidden">
+          <table className="glass-table">
+            <thead>
+              <tr>
+                {["User", "Role", "Created", "Actions"].map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-16" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                users.map((u, i) => {
+                  const roleStyle = ROLE_STYLE[u.role] ?? ROLE_STYLE.employee;
+                  return (
+                    <tr
+                      key={u._id}
+                      style={{
+                        opacity: show ? 1 : 0,
+                        transition: `opacity 300ms ease ${i * 50}ms`,
+                      }}
+                    >
+                      {/* User Info */}
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <Avatar name={u.name} />
+                          <div>
+                            <p className="font-semibold text-white">{u.name}</p>
+                            <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                              {u.email}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Role Badge */}
+                      <td>
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{
+                            background: roleStyle.bg,
+                            color: roleStyle.color,
+                            border: `1px solid ${roleStyle.dot}44`,
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ background: roleStyle.dot }}
+                          />
+                          {roleStyle.label}
+                        </span>
+                      </td>
+
+                      {/* Created Date */}
+                      <td style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.75rem" }}>
+                        {new Date(u.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </td>
+
+                      {/* Actions */}
+                      <td>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openEdit(u)}
+                            className="p-1.5 rounded-lg transition-all"
+                            style={{ color: "rgba(255,255,255,0.65)" }}
+                            onMouseEnter={(e) => {
+                              (e.currentTarget as HTMLElement).style.color = "#818cf8";
+                              (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.2)";
+                            }}
+                            onMouseLeave={(e) => {
+                              (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)";
+                              (e.currentTarget as HTMLElement).style.background = "transparent";
+                            }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(u._id)}
+                            className="p-1.5 rounded-lg transition-all"
+                            style={{ color: "rgba(255,255,255,0.65)" }}
+                            onMouseEnter={(e) => {
+                              (e.currentTarget as HTMLElement).style.color = "#f87171";
+                              (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.2)";
+                            }}
+                            onMouseLeave={(e) => {
+                              (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)";
+                              (e.currentTarget as HTMLElement).style.background = "transparent";
+                            }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Add/Edit Modal */}
+        {showModal && (
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+          >
+            <div
+              className="glass-card w-full max-w-md"
+              style={{ background: "rgba(30,27,75,0.85)" }}
+            >
+              <div
+                className="flex items-center justify-between px-6 py-5"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {editing ? "Edit User" : "Create User Account"}
+                  </h3>
+                  {!editing && (
+                    <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                      Set credentials and role for the new user
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-1.5 rounded-lg"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = "#fff";
+                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)";
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className={inp}
+                    placeholder="John Doe"
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className={inp}
+                    placeholder="john@company.com"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    Password{" "}
+                    {editing && (
+                      <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400 }}>
+                        (leave blank to keep current)
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    type="password"
+                    required={!editing}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className={inp}
+                    placeholder={editing ? "••••••••" : "Min. 8 characters"}
+                    minLength={editing && !form.password ? undefined : 6}
+                  />
+                </div>
+
+                {/* ✅ Role Selector — now includes employee */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    Role
+                  </label>
+                  <select
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    className={inp}
+                  >
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  {/* Role description */}
+                  <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    {form.role === "admin" && "Full access to all features and settings."}
+                    {form.role === "manager" && "Can manage employees, salaries, and departments."}
+                    {form.role === "employee" && "Can view their own profile, salary, and schedule."}
+                  </p>
+                </div>
+
+                {error && (
+                  <div
+                    className="px-4 py-3 rounded-xl text-sm"
+                    style={{
+                      background: "rgba(239,68,68,0.15)",
+                      border: "1px solid rgba(239,68,68,0.3)",
+                      color: "#fca5a5",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                    style={{
+                      background: "rgba(255,255,255,0.1)",
+                      border: "1px solid rgba(255,255,255,0.25)",
+                      color: "rgba(255,255,255,0.9)",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-glass flex-1 py-2.5 text-sm disabled:opacity-60"
+                  >
+                    {loading ? "Saving..." : editing ? "Save Changes" : "Create Account"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
