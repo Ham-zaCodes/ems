@@ -350,132 +350,222 @@ export default function UsersPage() {
         </div>
 
         {/* Add/Edit Modal */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4"
-            style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
-            <div className="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto"
-              style={{ background: "rgba(30,27,75,0.85)" }}>
+       {showModal && (
+  <div
+    className="fixed inset-0 flex items-center justify-center z-50 p-4"
+    style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+  >
+    <div
+      className="w-full max-w-lg rounded-2xl flex flex-col"
+      style={{
+        background: "rgba(30,27,75,0.95)",
+        border: "1px solid rgba(255,255,255,0.15)",
+        maxHeight: "90vh",
+      }}
+    >
+      {/* Modal Header — fixed at top */}
+      <div
+        className="flex items-center justify-between px-6 py-4 shrink-0"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+      >
+        <div>
+          <h3 className="text-base font-bold text-white">
+            {editing ? "Edit User" : "Create User Account"}
+          </h3>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+            {editing
+              ? "Update user credentials and details"
+              : "Set credentials, role, department and position"}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowModal(false)}
+          className="p-1.5 rounded-lg transition-all"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.color = "#fff";
+            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)";
+            (e.currentTarget as HTMLElement).style.background = "transparent";
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-5"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    {editing ? "Edit User" : "Create User Account"}
-                  </h3>
-                  {!editing && (
-                    <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
-                      Set credentials, role, department and position
-                    </p>
-                  )}
-                </div>
-                <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg"
-                  style={{ color: "rgba(255,255,255,0.4)" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              </div>
+      {/* Scrollable Form Body */}
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-
-                {/* Name */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>Full Name</label>
-                  <input type="text" required value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className={inp} placeholder="John Doe" />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>Email Address</label>
-                  <input type="email" required value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className={inp} placeholder="john@company.com" />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Password{" "}
-                    {editing && <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400 }}>(leave blank to keep)</span>}
-                  </label>
-                  <input type="password" required={!editing} value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className={inp} placeholder={editing ? "••••••••" : "Min. 6 characters"} minLength={6} />
-                </div>
-
-                {/* Role */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>Role</label>
-                  <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={inp}>
-                    <option value="employee">Employee</option>
-                    <option value="manager">Manager</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    {form.role === "admin"    && "Full access to all features and settings."}
-                    {form.role === "manager"  && "Can manage employees, salaries, and departments."}
-                    {form.role === "employee" && "Can view their own profile, salary, and schedule."}
-                  </p>
-                </div>
-
-                {/* ✅ Department Dropdown */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Department <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>(optional)</span>
-                  </label>
-                  <select value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} className={inp}>
-                    <option value="">— Select Department —</option>
-                    {departments.map((d) => (
-                      <option key={d._id} value={d._id}>{d.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* ✅ Position Dropdown */}
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Position / Designation <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>(optional)</span>
-                  </label>
-                  <select value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} className={inp}>
-                    <option value="">— Select Position —</option>
-                    {POSITIONS.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                  {/* Allow custom position too */}
-                  {form.position === "" && (
-                    <input type="text" value={form.position}
-                      onChange={(e) => setForm({ ...form, position: e.target.value })}
-                      className={`${inp} mt-2`} placeholder="Or type a custom position..." />
-                  )}
-                </div>
-
-                {error && (
-                  <div className="px-4 py-3 rounded-xl text-sm"
-                    style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}>
-                    {error}
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowModal(false)}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.9)" }}>
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={loading}
-                    className="btn-glass flex-1 py-2.5 text-sm disabled:opacity-60">
-                    {loading ? "Saving..." : editing ? "Save Changes" : "Create Account"}
-                  </button>
-                </div>
-              </form>
+          {/* Name + Email in a row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Full Name
+              </label>
+              <input
+                type="text" required value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className={inp} placeholder="John Doe"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Email Address
+              </label>
+              <input
+                type="email" required value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className={inp} placeholder="john@company.com"
+              />
             </div>
           </div>
-        )}
-      </div>
-    </>
-  );
-}
+
+          {/* Password + Role in a row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Password{" "}
+                {editing && (
+                  <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>
+                    (optional)
+                  </span>
+                )}
+              </label>
+              <input
+                type="password" required={!editing} value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className={inp} placeholder="Min. 6 chars" minLength={6}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Role
+              </label>
+              <select
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                className={inp}
+              >
+                <option value="employee">Employee</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+              <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                {form.role === "admin"    && "Full system access"}
+                {form.role === "manager"  && "Manage teams & salaries"}
+                {form.role === "employee" && "View own profile only"}
+              </p>
+            </div>
+          </div>
+
+          {/* Department + Position in a row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Department
+                <span className="ml-1 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  (optional)
+                </span>
+              </label>
+              <select
+                value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })}
+                className={inp}
+              >
+                <option value="">— None —</option>
+                {departments.map((d) => (
+                  <option key={d._id} value={d._id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.8)" }}>
+                Position
+                <span className="ml-1 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  (optional)
+                </span>
+              </label>
+              <select
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+                className={inp}
+              >
+                <option value="">— None —</option>
+                {POSITIONS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Custom position input if none selected */}
+          {form.position === "" && (
+            <div>
+              <label className="block text-xs font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.6)" }}>
+                Custom Position <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>(type if not in list)</span>
+              </label>
+              <input
+                type="text" value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+                className={inp} placeholder="e.g. Lead Architect"
+              />
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="px-4 py-3 rounded-xl text-sm"
+              style={{
+                background: "rgba(239,68,68,0.15)",
+                border: "1px solid rgba(239,68,68,0.3)",
+                color: "#fca5a5",
+              }}>
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* Footer Buttons — fixed at bottom */}
+        <div
+          className="px-6 py-4 flex gap-3 shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+        >
+          <button
+            type="button" onClick={() => setShowModal(false)}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit" disabled={loading}
+            className="btn-glass flex-1 py-2.5 text-sm font-semibold disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : editing ? "Save Changes" : "Create Account"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
