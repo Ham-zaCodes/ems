@@ -7,8 +7,17 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ["admin", "manager", "employee"],  // ✅ added employee
+    enum: ["admin", "manager", "employee"],
     default: "employee",
+  },
+  department: {
+    type: Schema.Types.ObjectId,
+    ref: "Department",
+    default: null,
+  },
+  position: {
+    type: String,
+    default: null,
   },
 }, { timestamps: true });
 
