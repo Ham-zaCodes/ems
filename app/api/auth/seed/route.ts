@@ -36,4 +36,3 @@ export async function POST() {
   const result = await seed();
   return NextResponse.json(result);
 }
-
