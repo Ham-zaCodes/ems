@@ -5,3 +5,4 @@ export async function POST() {
   res.cookies.set("token", "", { maxAge: 0, path: "/" });
   return res;
 }
+
